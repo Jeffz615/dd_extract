@@ -1,6 +1,6 @@
 import requests
 import math
-import json
+import os
 
 
 def getStat(vmid):
@@ -68,3 +68,4 @@ if __name__ == "__main__":
                 dd.append(str(roomid))
     print("=============================================")
     print(" ".join(dd))
+    os.system('pause')
