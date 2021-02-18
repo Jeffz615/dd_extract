@@ -2,6 +2,8 @@
 
 for bilibili
 
+生成列表可直接用于 [`DD监控室(DD_Monitor)`](https://github.com/zhimingshenjun/DD_Monitor)
+
 # dd_extract.py（不登录版）
 
 由于bilibili的限制，只能获取关注列表最近关注的250位和一开始关注的250位up主即**500位up主**中的vup
