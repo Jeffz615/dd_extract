@@ -5,6 +5,27 @@ import time
 import os
 from http.cookiejar import MozillaCookieJar
 from PIL import Image
+import qrcode
+
+
+class Qrcode(object):
+
+    def __init__(self):
+        self.qr = qrcode.QRCode(version=None,
+                                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                                box_size=1,
+                                border=1,)
+
+    def add_data(self, data):
+        if len(data) > 0:
+            self.qr.add_data(data)
+
+    def print_png(self):
+        self.qr.print_ascii(invert=True)
+        self.qr.clear()
+
+    def gen_qrcode(self):
+        self.print_png()
 
 
 class bilibiliQRLogin():
@@ -19,10 +40,11 @@ class bilibiliQRLogin():
         self.user_info_url = 'https://api.bilibili.com/x/space/myinfo'
         self.times = 3  # 超时时间 times*10 秒
         self.cookie_path = './cookie.txt'
-        self.qr_path = './qr.png'
+        self.qr = Qrcode()
         self.load_cookie_from_local()
         if not self.check_expire():
             self.get_login_session()
+            self.check_expire()
 
     def qr_scan(self):
         h = requests.get(self.qr_login_url)
@@ -37,22 +59,9 @@ class bilibiliQRLogin():
         return oauthKey
 
     def save_qr_img(self, qr_image_url):
-        try:
-            import qrcode
-            qr_image = qrcode.make(qr_image_url)
-            qr_image.save('qr.png')
-            return
-        except ImportError:
-            print("本地没有qrcode库,采用api生成二维码")
-
-        try:
-            qr_image = requests.get(
-                'http://qr.topscan.com/api.php?text='+qr_image_url).content
-            with open('qr.png', 'wb') as f:
-                f.write(qr_image)
-        except:
-            print("网站api失效，无法生成二维码")
-            raise Exception("网站api失效，无法生成二维码")
+        self.qr.add_data(qr_image_url)
+        self.qr.gen_qrcode()
+        return
 
     def get_qr_scan_status(self, oauthKey):
         data = {
@@ -80,17 +89,15 @@ class bilibiliQRLogin():
         return False
 
     def get_login_session(self):
-        if self.login_session and self.check_expire():
+        if self.login_session and self.uid:
             return self.login_session
         oauthKey = self.qr_scan()
         print("请扫描二维码")
-        img = Image.open(self.qr_path)
-        img.show()
         for i in range(self.times):
             time.sleep(10)
             status, session = self.get_qr_scan_status(oauthKey)
             if not status:
-                print("等待二维码扫描")
+                print("等待二维码扫描...")
             else:
                 print("登录成功")
                 self.login_session = session
@@ -165,7 +172,7 @@ if __name__ == "__main__":
     for user in followList:
         mids.add(user.get("mid"))
     print(mids)
-    print(f"[+] 已获取最新关注的 {len(mids)} 个up主")
+    print(f"[+] 已获取关注的 {len(mids)} 个up主")
     print("[+] 正在从vtbs.moe获取vtbs列表...")
     vtbs = getVtbs()
     dd = []

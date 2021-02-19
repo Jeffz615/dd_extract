@@ -54,7 +54,7 @@ if __name__ == "__main__":
     for user in followList:
         mids.add(user.get("mid"))
     print(mids)
-    print(f"[+] 已获取最新关注的 {len(mids)} 个up主")
+    print(f"[+] 已获取关注的 {len(mids)} 个up主")
     print("[+] 正在从vtbs.moe获取vtbs列表...")
     vtbs = getVtbs()
     dd = []
